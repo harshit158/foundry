@@ -1,0 +1,77 @@
+services:
+  loki:
+    image: grafana/loki:3.0.0
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./configs/loki-config.yaml:/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+
+  tempo:
+    image: grafana/tempo:latest
+    depends_on:
+      - minio
+      - redpanda
+    command: "-target=all -config.file=/etc/tempo.yaml"
+    restart: always
+    volumes:
+      - ./configs/tempo.yaml:/etc/tempo.yaml
+      - ./tempo-data:/var/tempo
+    ports:
+      - "3200:3200"
+    environment:
+     - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+    
+  redpanda:
+    image: redpandadata/redpanda:latest
+    ports:
+      - "9092:9092" # Kafka API for clients
+    command: >
+      redpanda start --overprovisioned
+      --mode=dev-container
+      --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      --advertise-kafka-addr=PLAINTEXT://redpanda:9092
+
+  alloy:
+    image: grafana/alloy:latest
+    ports:
+      - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./configs/config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: run --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    user: root
+    depends_on:
+      - loki
+      - tempo
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - loki
+      - tempo
+  
+  minio:
+    image: minio/minio:latest
+    environment:
+      - MINIO_ACCESS_KEY=tempo
+      - MINIO_SECRET_KEY=supersecret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    entrypoint:
+      - sh
+      - -euc
+      - mkdir -p /data/tempo && minio server /data --console-address ':9001'
+
+volumes:
+  grafana-storage:
