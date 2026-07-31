@@ -3,10 +3,11 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from src.settings import settings
 
-def setup_tracing():
-    resource = Resource.create({"service.name": settings.app_name})
+from .config import ObservabilityConfig
+
+def setup_tracing(config: ObservabilityConfig):
+    resource = Resource.create({"service.name": config.app_name})
     provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(provider)
 

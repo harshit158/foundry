@@ -10,7 +10,7 @@ from pythonjsonlogger.json import JsonFormatter
 from rich.console import Console
 from rich.logging import RichHandler
 
-from src.settings import settings
+from .config import ObservabilityConfig
 
 class AccessLogFilter(logging.Filter):
     """Custom logging filter to exclude certain endpoints from access logs."""
@@ -58,8 +58,8 @@ def get_otlp_handler():
     return LoggingHandler(level=logging.INFO, logger_provider=_logs.get_logger_provider())
     
 # Create centralized logging configuration
-def setup_logging():
-    resource = Resource.create({"service.name": settings.app_name})
+def setup_logging(config: ObservabilityConfig):
+    resource = Resource.create({"service.name": config.app_name})
     logger_provider = LoggerProvider(resource=resource)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(OTLPLogExporter()))
     _logs.set_logger_provider(logger_provider)
