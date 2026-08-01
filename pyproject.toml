@@ -36,7 +36,7 @@ Homepage = "https://github.com/harshit158/foundry"
 Repository = "https://github.com/harshit158/foundry.git"
 
 [tool.setuptools]
-packages = ["foundry", "foundry.observability"]
+packages = ["foundry", "foundry.observability", "foundry.llm_utils"]
 
 [tool.black]
 line-length = 100
