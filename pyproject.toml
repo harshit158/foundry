@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["observability", "logging", "tracing", "opentelemetry"]
 
-dependencies = [
+dependencies = [    "langchain-core>=1.5.3",
     "opentelemetry-api>=1.44.0",
     "opentelemetry-exporter-otlp>=1.44.0",
     "opentelemetry-sdk>=1.44.0",
