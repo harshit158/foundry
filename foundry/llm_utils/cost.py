@@ -18,7 +18,7 @@ class Model(StrEnum):
     to the codebase.
     """
 
-    GPT_54_NANO = "gpt-5.4-nano"
+    GPT_54_NANO = "gpt-5.4-nano-2026-03-17"
     GPT_54_MINI = "gpt-5.4-mini"
 
 # Token pricing per 1M tokens (USD). Update with actual provider pricing as needed.
